@@ -47,4 +47,33 @@ export class AttendanceController {
   }) {
     return this.attendanceService.updateClass(data.key, data);
   }
+
+  @MessagePattern({ cmd: 'attendance.createMeeting' })
+  createMeeting(data: {
+    classKey: string;
+    date: string;
+    teacher: string;
+    location?: { lat: number; lng: number };
+  }) {
+    return this.attendanceService.createMeeting(data);
+  }
+
+  @MessagePattern({ cmd: 'attendance.getMeeting' })
+  getMeeting(data: { key: string }) {
+    return this.attendanceService.getMeeting(data.key);
+  }
+
+  @MessagePattern({ cmd: 'attendance.listMeetings' })
+  listMeetings(data: { classKey?: string }) {
+    return this.attendanceService.listMeetings(data?.classKey);
+  }
+
+  @MessagePattern({ cmd: 'attendance.updateMeeting' })
+  updateMeeting(data: {
+    key: string;
+    status?: 'open' | 'cancelled' | 'concluded';
+    location?: { lat: number; lng: number };
+  }) {
+    return this.attendanceService.updateMeeting(data.key, data);
+  }
 }
