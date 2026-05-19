@@ -1,6 +1,8 @@
-import { Controller } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
+import { Controller, ValidationPipe } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AttendanceService } from './attendance.service';
+import { CreateClassDto } from './dto/create-class.dto';
+import { UpdateClassDto } from './dto/update-class.dto';
 
 @Controller()
 export class AttendanceController {
@@ -12,16 +14,7 @@ export class AttendanceController {
   }
 
   @MessagePattern({ cmd: 'attendance.createClass' })
-  createClass(data: {
-    name: string;
-    description?: string;
-    schedule?: string;
-    room?: string;
-    classCode: string;
-    section: string;
-    academicYear: string;
-    teachers?: string[];
-  }) {
+  createClass(@Payload(new ValidationPipe()) data: CreateClassDto) {
     return this.attendanceService.createClass(data);
   }
 
@@ -36,15 +29,8 @@ export class AttendanceController {
   }
 
   @MessagePattern({ cmd: 'attendance.updateClass' })
-  updateClass(data: {
-    key: string;
-    name?: string;
-    description?: string;
-    schedule?: string;
-    room?: string;
-    section?: string;
-    academicYear?: string;
-  }) {
-    return this.attendanceService.updateClass(data.key, data);
+  updateClass(@Payload(new ValidationPipe()) data: UpdateClassDto & { key: string }) {
+    const { key, ...rest } = data;
+    return this.attendanceService.updateClass(key, rest);
   }
 }

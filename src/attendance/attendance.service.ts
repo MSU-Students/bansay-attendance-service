@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { FirebaseService } from './firebase/firebase.service';
 import * as admin from 'firebase-admin';
+import { CreateClassDto } from './dto/create-class.dto';
+import { UpdateClassDto } from './dto/update-class.dto';
 
 @Injectable()
 export class AttendanceService {
@@ -14,16 +16,7 @@ export class AttendanceService {
     return new Date().toISOString();
   }
 
-  async createClass(data: {
-    name: string;
-    description?: string;
-    schedule?: string;
-    room?: string;
-    classCode: string;
-    section: string;
-    academicYear: string;
-    teachers?: string[];
-  }) {
+  async createClass(data: CreateClassDto) {
     const doc = this.db.collection('classes').doc();
     const classData = {
       key: doc.id,
@@ -53,14 +46,7 @@ export class AttendanceService {
 
   async updateClass(
     key: string,
-    data: {
-      name?: string;
-      description?: string;
-      schedule?: string;
-      room?: string;
-      section?: string;
-      academicYear?: string;
-    },
+    data: UpdateClassDto,
   ) {
     const updateData: Record<string, unknown> = { updatedAt: this.now() };
     if (data.name !== undefined) updateData.name = data.name;
