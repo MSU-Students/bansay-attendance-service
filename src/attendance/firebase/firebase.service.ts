@@ -1,4 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
 import { CollectionName, CollectionTypes } from '../models/collection.type';
 
@@ -6,11 +7,13 @@ import { CollectionName, CollectionTypes } from '../models/collection.type';
 export class FirebaseService implements OnModuleInit {
   private db: admin.firestore.Firestore;
 
+  constructor(private readonly configService: ConfigService) {}
+
   onModuleInit() {
     if (!admin.apps.length) {
       admin.initializeApp({
         credential: admin.credential.applicationDefault(),
-        projectId: 'msu-attendance',
+        projectId: this.configService.get<string>('firebase.projectId'),
       });
     }
     this.db = admin.firestore();
