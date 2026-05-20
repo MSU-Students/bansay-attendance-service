@@ -14,12 +14,17 @@ const mockCollection = {
   where: jest.fn().mockReturnThis(),
 };
 
+const mockVerifyIdToken = jest.fn();
+
 jest.mock('firebase-admin', () => ({
   apps: [],
   initializeApp: jest.fn(),
   credential: { applicationDefault: jest.fn() },
   firestore: () => ({
     collection: jest.fn(() => mockCollection),
+  }),
+  auth: () => ({
+    verifyIdToken: mockVerifyIdToken,
   }),
 }));
 
@@ -110,6 +115,26 @@ describe('FirebaseService', () => {
     it('should return the firestore instance', () => {
       const db = service.getFirestore();
       expect(db).toBeDefined();
+    });
+  });
+
+  describe('verifyToken', () => {
+    it('should call admin.auth().verifyIdToken with the token', async () => {
+      const decodedToken = { uid: 'abc123', email: 'juan@msu.edu' };
+      mockVerifyIdToken.mockResolvedValue(decodedToken);
+
+      const result = await service.verifyToken('some-token');
+
+      expect(mockVerifyIdToken).toHaveBeenCalledWith('some-token');
+      expect(result).toEqual(decodedToken);
+    });
+
+    it('should throw when token is invalid', async () => {
+      mockVerifyIdToken.mockRejectedValue(new Error('invalid token'));
+
+      await expect(service.verifyToken('bad-token')).rejects.toThrow(
+        'invalid token',
+      );
     });
   });
 });
