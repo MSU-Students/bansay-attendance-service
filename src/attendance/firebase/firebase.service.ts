@@ -47,4 +47,8 @@ export class FirebaseService implements OnModuleInit {
   getFirestore(): admin.firestore.Firestore {
     return this.db;
   }
+
+  async verifyToken(token: string): Promise<admin.auth.DecodedIdToken> {
+    return admin.auth().verifyIdToken(token);
+  }
 }
