@@ -1,3 +1,4 @@
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FirebaseService } from './firebase.service';
 
@@ -27,7 +28,18 @@ describe('FirebaseService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [FirebaseService],
+      providers: [
+        FirebaseService,
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn((key: string) => {
+              if (key === 'firebase.projectId') return 'msu-attendance';
+              return undefined;
+            }),
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<FirebaseService>(FirebaseService);
@@ -53,7 +65,11 @@ describe('FirebaseService', () => {
     });
 
     it('should return null when document does not exist', async () => {
-      mockCollection.get.mockResolvedValueOnce({ exists: false, id: 'missing', data: () => ({}) });
+      mockCollection.get.mockResolvedValueOnce({
+        exists: false,
+        id: 'missing',
+        data: () => ({}),
+      });
 
       const result = await service.getRecord('users', 'missing');
       expect(result).toBeNull();
@@ -77,14 +93,16 @@ describe('FirebaseService', () => {
 
     it('should apply filters when provided', async () => {
       mockCollection.get.mockResolvedValueOnce({
-        docs: [
-          { id: '1', data: () => ({ fullName: 'C', role: 'student' }) },
-        ],
+        docs: [{ id: '1', data: () => ({ fullName: 'C', role: 'student' }) }],
       });
 
       await service.findRecords('users', { role: 'student' });
 
-      expect(mockCollection.where).toHaveBeenCalledWith('role', '==', 'student');
+      expect(mockCollection.where).toHaveBeenCalledWith(
+        'role',
+        '==',
+        'student',
+      );
     });
   });
 
