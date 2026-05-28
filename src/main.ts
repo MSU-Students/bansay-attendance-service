@@ -9,12 +9,8 @@ async function bootstrap() {
       transport: Transport.TCP,
       options: {
         host: '0.0.0.0',
-<<<<<<< HEAD
         port: parseInt(process.env.PORT!, 10) || 3003,
-=======
-        port: 3003,
->>>>>>> origin/feat/attendance-class-crud
-      }
+      },
     },
   );
   await app.listen();
