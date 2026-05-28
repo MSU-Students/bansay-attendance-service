@@ -16,6 +16,15 @@ export class AttendanceService {
     return new Date().toISOString();
   }
 
+  async ping(): Promise<Record<string, string>> {
+    try {
+      await this.db.listCollections();
+      return { status: 'ok', firestore: 'connected', timestamp: new Date().toISOString() };
+    } catch {
+      return { status: 'degraded', firestore: 'disconnected', timestamp: new Date().toISOString() };
+    }
+  }
+  
   // --- Class CRUD Methods (Using Your Clean DTOs) ---
   async createClass(data: CreateClassDto) {
     const doc = this.db.collection('classes').doc();

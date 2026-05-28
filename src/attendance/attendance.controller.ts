@@ -11,8 +11,8 @@ export class AttendanceController {
 
   @Public()
   @MessagePattern({ cmd: 'attendance.ping' })
-  ping(): string {
-    return '[Attendance] I am alive.';
+  async ping(): Promise<Record<string, string>> {
+    return this.attendanceService.ping();
   }
 
   // --- Class Management Endpoints (Validated via DTOs) ---
