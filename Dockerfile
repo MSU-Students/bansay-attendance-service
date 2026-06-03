@@ -16,4 +16,5 @@ RUN yarn build
 
 RUN rm -r src
 
+EXPOSE 3000
 CMD [ "node", "dist/main" ]
